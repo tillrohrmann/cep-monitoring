@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.stsffap.cep.monitoring.types;
+package types;
 
 public class PowerEvent extends MonitoringEvent {
     private double voltage;

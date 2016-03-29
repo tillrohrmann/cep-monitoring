@@ -54,7 +54,7 @@ under the License.
 	</repositories>
 
 	<modules>
-		<module>common</module>
+		<module>cep-common</module>
 		<module>data-generator</module>
 		<module>cep-monitoring</module>
 	</modules>
@@ -68,8 +68,13 @@ under the License.
 			</dependency>
 			<dependency>
 				<groupId>org.apache.flink</groupId>
-				<artifactId>flink-connector-kafka-0.9</artifactId>
+				<artifactId>flink-connector-kafka-0.9_2.10</artifactId>
 				<version>${flink.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.stsffap</groupId>
+				<artifactId>cep-common</artifactId>
+				<version>${project.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

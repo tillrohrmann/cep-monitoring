@@ -29,8 +29,8 @@ under the License.
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>common</artifactId>
-    <name>common</name>
+    <artifactId>cep-common</artifactId>
+    <name>cep-common</name>
 
     <packaging>jar</packaging>
 </project>

@@ -16,22 +16,20 @@
  * limitations under the License.
  */
 
-package org.stsffap.cep.monitoring.types;
+package types;
 
-public class TemperatueEvent extends MonitoringEvent {
-    private double temperature;
+public abstract class MonitoringEvent {
+    private int rackID;
 
-    public TemperatueEvent(int rackID, double temperature) {
-        super(rackID);
-
-        this.temperature = temperature;
+    public MonitoringEvent(int rackID) {
+        this.rackID = rackID;
     }
 
-    public double getTemperature() {
-        return temperature;
+    public int getRackID() {
+        return rackID;
     }
 
-    public void setTemperature(double temperature) {
-        this.temperature = temperature;
+    public void setRackID(int rackID) {
+        this.rackID = rackID;
     }
 }
