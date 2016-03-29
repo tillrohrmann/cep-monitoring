@@ -7,7 +7,7 @@
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,14 +16,22 @@
  * limitations under the License.
  */
 
-package org.stsffap.cep.dataGenerator;
+package org.stsffap.cep.monitoring.types;
 
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+public class PowerEvent extends MonitoringEvent {
+    private double voltage;
 
-public class DataGenerator {
-    public static void main(String[] args) throws Exception {
-        StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+    public PowerEvent(int rackID, double voltage) {
+        super(rackID);
 
-        env.execute("CEP DataGenerator");
+        this.voltage = voltage;
+    }
+
+    public void setVoltage(double voltage) {
+        this.voltage = voltage;
+    }
+
+    public double getVoltage() {
+        return voltage;
     }
 }
