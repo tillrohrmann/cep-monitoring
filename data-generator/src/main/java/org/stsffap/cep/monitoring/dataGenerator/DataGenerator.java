@@ -25,7 +25,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer09;
 import org.apache.flink.streaming.util.serialization.TypeInformationSerializationSchema;
-import types.MonitoringEvent;
+import org.stsffap.cep.monitoring.types.MonitoringEvent;
 
 public class DataGenerator {
     private static final int MAX_RACK_ID = 1000;

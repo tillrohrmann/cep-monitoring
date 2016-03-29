@@ -20,9 +20,9 @@ package org.stsffap.cep.monitoring.dataGenerator;
 
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
-import types.MonitoringEvent;
-import types.PowerEvent;
-import types.TemperatueEvent;
+import org.stsffap.cep.monitoring.types.MonitoringEvent;
+import org.stsffap.cep.monitoring.types.PowerEvent;
+import org.stsffap.cep.monitoring.types.TemperatueEvent;
 
 import java.util.Random;
 
