@@ -34,4 +34,29 @@ public class PowerEvent extends MonitoringEvent {
     public double getVoltage() {
         return voltage;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof PowerEvent) {
+            PowerEvent powerEvent = (PowerEvent) obj;
+            return powerEvent.canEquals(this) && super.equals(powerEvent) && voltage == powerEvent.voltage;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return 41 * super.hashCode() + Double.hashCode(voltage);
+    }
+
+    @Override
+    public boolean canEquals(Object obj) {
+        return obj instanceof PowerEvent;
+    }
+
+    @Override
+    public String toString() {
+        return "PowerEvent(" + getRackID() + ", " + voltage + ")";
+    }
 }

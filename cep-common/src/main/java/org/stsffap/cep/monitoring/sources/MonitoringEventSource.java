@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.stsffap.cep.monitoring.dataGenerator;
+package org.stsffap.cep.monitoring.sources;
 
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
@@ -27,6 +27,13 @@ import org.stsffap.cep.monitoring.types.TemperatueEvent;
 import java.util.Random;
 
 public class MonitoringEventSource extends RichParallelSourceFunction<MonitoringEvent> {
+    private static final int MAX_RACK_ID = 10;
+    private static final long PAUSE = 100;
+    private static final double TEMPERATURE_RATIO = 0.5;
+    private static final double POWER_STD = 10;
+    private static final double POWER_MEAN = 100;
+    private static final double TEMP_STD = 20;
+    private static final double TEMP_MEAN = 80;
 
     private boolean running = true;
 
@@ -44,7 +51,7 @@ public class MonitoringEventSource extends RichParallelSourceFunction<Monitoring
 
     private final double temperatureMean;
 
-    private final Random random;
+    private Random random;
 
     private int shard;
 
@@ -65,8 +72,18 @@ public class MonitoringEventSource extends RichParallelSourceFunction<Monitoring
         this.powerStd = powerStd;
         this.temperatureMean = temperatureMean;
         this.temperatureStd = temperatureStd;
+    }
 
-        random = new Random();
+    public MonitoringEventSource() {
+        this(
+                MAX_RACK_ID,
+                PAUSE,
+                TEMPERATURE_RATIO,
+                POWER_STD,
+                POWER_MEAN,
+                TEMP_STD,
+                TEMP_MEAN
+        );
     }
 
     @Override
@@ -76,6 +93,8 @@ public class MonitoringEventSource extends RichParallelSourceFunction<Monitoring
 
         offset = (int)((double)maxRackId / numberTasks * index);
         shard = (int)((double)maxRackId / numberTasks * (index + 1)) - offset;
+
+        random = new Random();
     }
 
     public void run(SourceContext<MonitoringEvent> sourceContext) throws Exception {

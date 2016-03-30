@@ -18,26 +18,33 @@
 
 package org.stsffap.cep.monitoring.types;
 
-public abstract class MonitoringEvent {
-    private int rackID;
+public class TemperatureWarning extends MonitoringEvent {
 
-    public MonitoringEvent(int rackID) {
-        this.rackID = rackID;
+    private double averageTemperature;
+
+    public TemperatureWarning(int rackID, double averageTemperature) {
+        super(rackID);
+        this.averageTemperature = averageTemperature;
     }
 
-    public int getRackID() {
-        return rackID;
+    public TemperatureWarning() {
+        this(-1, -1);
     }
 
-    public void setRackID(int rackID) {
-        this.rackID = rackID;
+    public double getAverageTemperature() {
+        return averageTemperature;
+    }
+
+    public void setAverageTemperature(double averageTemperature) {
+        this.averageTemperature = averageTemperature;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof MonitoringEvent) {
-            MonitoringEvent monitoringEvent = (MonitoringEvent) obj;
-            return monitoringEvent.canEquals(this) && rackID == monitoringEvent.rackID;
+        if (obj instanceof TemperatureWarning) {
+            TemperatureWarning other = (TemperatureWarning) obj;
+
+            return other.canEquals(this) && super.equals(other) && averageTemperature == other.averageTemperature;
         } else {
             return false;
         }
@@ -45,10 +52,16 @@ public abstract class MonitoringEvent {
 
     @Override
     public int hashCode() {
-        return rackID;
+        return 41 * super.hashCode() + Double.hashCode(averageTemperature);
     }
 
+    @Override
     public boolean canEquals(Object obj) {
-        return obj instanceof MonitoringEvent;
+        return obj instanceof TemperatureWarning;
+    }
+
+    @Override
+    public String toString() {
+        return "TemperatureWarning(" + getRackID() + ", " + averageTemperature + ")";
     }
 }

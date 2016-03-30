@@ -34,4 +34,30 @@ public class TemperatueEvent extends MonitoringEvent {
     public void setTemperature(double temperature) {
         this.temperature = temperature;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof TemperatueEvent) {
+            TemperatueEvent other = (TemperatueEvent) obj;
+
+            return other.canEquals(this) && super.equals(other) && temperature == other.temperature;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return 41 * super.hashCode() + Double.hashCode(temperature);
+    }
+
+    @Override
+    public boolean canEquals(Object obj){
+        return obj instanceof TemperatueEvent;
+    }
+
+    @Override
+    public String toString() {
+        return "TemperatureEvent(" + getRackID() + ", " + temperature + ")";
+    }
 }
