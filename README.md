@@ -1,5 +1,5 @@
 # cep-monitoring
-Apache Flink CEP program to monitor track temperatures in a data center
+Apache Flink CEP program to monitor rack temperatures in a data center
 
 The Flink program monitors an incoming stream of monitor events from a data center.
 The input stream contains events about the temperature and power consumption of the individual racks.
