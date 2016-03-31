@@ -18,12 +18,7 @@
 
 package org.stsffap.cep.monitoring;
 
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.api.java.typeutils.TypeExtractor;
-import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.cep.CEP;
-import org.apache.flink.cep.PatternFlatSelectFunction;
-import org.apache.flink.cep.PatternSelectFunction;
 import org.apache.flink.cep.PatternStream;
 import org.apache.flink.cep.pattern.Pattern;
 import org.apache.flink.streaming.api.TimeCharacteristic;
@@ -31,61 +26,24 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.IngestionTimeExtractor;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer09;
-import org.apache.flink.streaming.util.serialization.DeserializationSchema;
-import org.apache.flink.streaming.util.serialization.TypeInformationSerializationSchema;
-import org.apache.flink.util.Collector;
 import org.stsffap.cep.monitoring.sources.MonitoringEventSource;
 import org.stsffap.cep.monitoring.types.MonitoringEvent;
 import org.stsffap.cep.monitoring.types.TemperatueEvent;
 import org.stsffap.cep.monitoring.types.TemperatureAlert;
 import org.stsffap.cep.monitoring.types.TemperatureWarning;
 
-import java.util.Map;
-import java.util.Properties;
-
 public class CEPMonitoring {
     private static final double TEMPERATURE_THRESHOLD = 100;
 
     public static void main(String[] args) throws Exception {
-        final boolean useKafka = false;
-        final ParameterTool parameterTool = ParameterTool.fromArgs(args);
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
-        env.setParallelism(1);
-
-        TypeInformation<MonitoringEvent> monitorEventTypeInformation = TypeExtractor.getForClass(MonitoringEvent.class);
-
-        final DeserializationSchema<MonitoringEvent> deserializationSchema = new TypeInformationSerializationSchema<MonitoringEvent>(
-                monitorEventTypeInformation,
-                env.getConfig());
-
-        DataStream<MonitoringEvent> inputEventStream;
-
-        if (useKafka) {
-            final String topic = parameterTool.get("topic");
-            final Properties properties = new Properties();
-
-            properties.setProperty("bootstrap.servers", parameterTool.get("bootstrap.servers"));
-            properties.setProperty("group.id", parameterTool.get("group.id"));
-
-            inputEventStream = env
-                    .addSource(
-                        new FlinkKafkaConsumer09<>(
-                                topic,
-                                deserializationSchema,
-                                properties
-                        )
-                    )
-                    .assignTimestampsAndWatermarks(new IngestionTimeExtractor<>());
-        } else {
-            inputEventStream = env
-                    .addSource(new MonitoringEventSource())
-                    .assignTimestampsAndWatermarks(new IngestionTimeExtractor<>());
-        }
+        DataStream<MonitoringEvent> inputEventStream = env
+                .addSource(new MonitoringEventSource())
+                .assignTimestampsAndWatermarks(new IngestionTimeExtractor<>());
 
         Pattern<MonitoringEvent, ?> warningPattern = Pattern.<MonitoringEvent>begin("first")
                 .subtype(TemperatueEvent.class)
@@ -111,8 +69,8 @@ public class CEPMonitoring {
         warnings.print();
 
         Pattern<TemperatureWarning, ?> alertPattern = Pattern.<TemperatureWarning>begin("first")
-                .followedBy("second")
-                .within(Time.seconds(100));
+                .next("second")
+                .within(Time.seconds(20));
 
         PatternStream<TemperatureWarning> alertPatternStream = CEP.pattern(
                 warnings.keyBy("rackID"),
