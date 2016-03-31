@@ -27,13 +27,6 @@ import org.stsffap.cep.monitoring.types.TemperatueEvent;
 import java.util.Random;
 
 public class MonitoringEventSource extends RichParallelSourceFunction<MonitoringEvent> {
-    private static final int MAX_RACK_ID = 10;
-    private static final long PAUSE = 100;
-    private static final double TEMPERATURE_RATIO = 0.5;
-    private static final double POWER_STD = 10;
-    private static final double POWER_MEAN = 100;
-    private static final double TEMP_STD = 20;
-    private static final double TEMP_MEAN = 80;
 
     private boolean running = true;
 
@@ -72,18 +65,6 @@ public class MonitoringEventSource extends RichParallelSourceFunction<Monitoring
         this.powerStd = powerStd;
         this.temperatureMean = temperatureMean;
         this.temperatureStd = temperatureStd;
-    }
-
-    public MonitoringEventSource() {
-        this(
-                MAX_RACK_ID,
-                PAUSE,
-                TEMPERATURE_RATIO,
-                POWER_STD,
-                POWER_MEAN,
-                TEMP_STD,
-                TEMP_MEAN
-        );
     }
 
     @Override

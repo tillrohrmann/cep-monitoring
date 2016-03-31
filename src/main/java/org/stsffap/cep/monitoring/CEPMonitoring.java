@@ -46,6 +46,14 @@ import org.stsffap.cep.monitoring.types.TemperatureWarning;
 public class CEPMonitoring {
     private static final double TEMPERATURE_THRESHOLD = 100;
 
+    private static final int MAX_RACK_ID = 10;
+    private static final long PAUSE = 100;
+    private static final double TEMPERATURE_RATIO = 0.5;
+    private static final double POWER_STD = 10;
+    private static final double POWER_MEAN = 100;
+    private static final double TEMP_STD = 20;
+    private static final double TEMP_MEAN = 80;
+
     public static void main(String[] args) throws Exception {
 
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -55,7 +63,14 @@ public class CEPMonitoring {
 
         // Input stream of monitoring events
         DataStream<MonitoringEvent> inputEventStream = env
-                .addSource(new MonitoringEventSource())
+                .addSource(new MonitoringEventSource(
+                        MAX_RACK_ID,
+                        PAUSE,
+                        TEMPERATURE_RATIO,
+                        POWER_STD,
+                        POWER_MEAN,
+                        TEMP_STD,
+                        TEMP_MEAN))
                 .assignTimestampsAndWatermarks(new IngestionTimeExtractor<>());
 
         // Warning pattern: Two consecutive temperature events whose temperature is higher than the given threshold
