@@ -6,5 +6,5 @@ The input stream contains events about the temperature and power consumption of 
 Whenever two temperature events occur within a given interval which exceed a certain threshold temperature, a warning will be raised.
 If the system should detect two temperature warnings for the same rack and with increasing temperatures, the system will generate an alert for this rack.
 
-`Note:` This program contains Java 8 lambdas.
+*Note:* This program contains Java 8 lambdas.
  In order to run it directly from within IntelliJ you have to set `Java Compiler` in the preferences to `Eclipse`. 
