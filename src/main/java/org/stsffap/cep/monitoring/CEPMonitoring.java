@@ -27,10 +27,10 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.IngestionTimeExtractor;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.stsffap.cep.monitoring.sources.MonitoringEventSource;
-import org.stsffap.cep.monitoring.types.MonitoringEvent;
-import org.stsffap.cep.monitoring.types.TemperatueEvent;
-import org.stsffap.cep.monitoring.types.TemperatureAlert;
-import org.stsffap.cep.monitoring.types.TemperatureWarning;
+import org.stsffap.cep.monitoring.events.MonitoringEvent;
+import org.stsffap.cep.monitoring.events.TemperatueEvent;
+import org.stsffap.cep.monitoring.events.TemperatureAlert;
+import org.stsffap.cep.monitoring.events.TemperatureWarning;
 
 /**
  * CEP example monitoring program

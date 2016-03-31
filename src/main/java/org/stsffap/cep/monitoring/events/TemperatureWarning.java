@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.stsffap.cep.monitoring.types;
+package org.stsffap.cep.monitoring.events;
 
 public class TemperatureWarning extends MonitoringEvent {
 

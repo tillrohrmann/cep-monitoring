@@ -16,20 +16,47 @@
  * limitations under the License.
  */
 
-package org.stsffap.cep.monitoring.types;
+package org.stsffap.cep.monitoring.events;
 
-public class TemperatureAlert extends MonitoringEvent {
-    public TemperatureAlert(int rackID) {
+public class PowerEvent extends MonitoringEvent {
+    private double voltage;
+
+    public PowerEvent(int rackID, double voltage) {
         super(rackID);
+
+        this.voltage = voltage;
+    }
+
+    public void setVoltage(double voltage) {
+        this.voltage = voltage;
+    }
+
+    public double getVoltage() {
+        return voltage;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof PowerEvent) {
+            PowerEvent powerEvent = (PowerEvent) obj;
+            return powerEvent.canEquals(this) && super.equals(powerEvent) && voltage == powerEvent.voltage;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return 41 * super.hashCode() + Double.hashCode(voltage);
     }
 
     @Override
     public boolean canEquals(Object obj) {
-        return obj instanceof TemperatureAlert;
+        return obj instanceof PowerEvent;
     }
 
     @Override
     public String toString() {
-        return "TemperatureAlert(" + getRackID() + ")";
+        return "PowerEvent(" + getRackID() + ", " + voltage + ")";
     }
 }
