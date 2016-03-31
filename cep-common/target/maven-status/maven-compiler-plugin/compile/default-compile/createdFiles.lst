@@ -2,4 +2,5 @@ org/stsffap/cep/monitoring/types/TemperatueEvent.class
 org/stsffap/cep/monitoring/types/TemperatureWarning.class
 org/stsffap/cep/monitoring/sources/MonitoringEventSource.class
 org/stsffap/cep/monitoring/types/MonitoringEvent.class
+org/stsffap/cep/monitoring/types/TemperatureAlert.class
 org/stsffap/cep/monitoring/types/PowerEvent.class

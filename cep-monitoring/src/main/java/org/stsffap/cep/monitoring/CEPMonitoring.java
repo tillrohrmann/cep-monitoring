@@ -55,6 +55,8 @@ public class CEPMonitoring {
 
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
+        env.setParallelism(1);
+
         TypeInformation<MonitoringEvent> monitorEventTypeInformation = TypeExtractor.getForClass(MonitoringEvent.class);
 
         final DeserializationSchema<MonitoringEvent> deserializationSchema = new TypeInformationSerializationSchema<MonitoringEvent>(
@@ -98,14 +100,11 @@ public class CEPMonitoring {
                 warningPattern);
 
         DataStream<TemperatureWarning> warnings = tempPatternStream.select(
-            new PatternSelectFunction<MonitoringEvent, TemperatureWarning>() {
-                @Override
-                public TemperatureWarning select(Map<String, MonitoringEvent> map) throws Exception {
-                    TemperatueEvent first = (TemperatueEvent) map.get("first");
-                    TemperatueEvent second = (TemperatueEvent) map.get("second");
+            map -> {
+                TemperatueEvent first = (TemperatueEvent) map.get("first");
+                TemperatueEvent second = (TemperatueEvent) map.get("second");
 
-                    return new TemperatureWarning(first.getRackID(), (first.getTemperature() + second.getTemperature()) / 2);
-                }
+                return new TemperatureWarning(first.getRackID(), (first.getTemperature() + second.getTemperature()) / 2);
             }
         );
 
@@ -119,17 +118,15 @@ public class CEPMonitoring {
                 warnings.keyBy("rackID"),
                 alertPattern);
 
-        DataStream<TemperatureAlert> alerts = alertPatternStream.flatSelect(new PatternFlatSelectFunction<TemperatureWarning, TemperatureAlert>() {
-            @Override
-            public void flatSelect(Map<String, TemperatureWarning> pattern, Collector<TemperatureAlert> out) throws Exception {
+        DataStream<TemperatureAlert> alerts = alertPatternStream.flatSelect(
+            (pattern, out) -> {
                 TemperatureWarning first = pattern.get("first");
                 TemperatureWarning second = pattern.get("second");
 
                 if (first.getAverageTemperature() < second.getAverageTemperature()) {
                     out.collect(new TemperatureAlert(first.getRackID()));
                 }
-            }
-        });
+            });
 
         alerts.print();
 
