@@ -18,10 +18,10 @@
 
 package org.stsffap.cep.monitoring.events;
 
-public class TemperatueEvent extends MonitoringEvent {
+public class TemperatureEvent extends MonitoringEvent {
     private double temperature;
 
-    public TemperatueEvent(int rackID, double temperature) {
+    public TemperatureEvent(int rackID, double temperature) {
         super(rackID);
 
         this.temperature = temperature;
@@ -37,8 +37,8 @@ public class TemperatueEvent extends MonitoringEvent {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof TemperatueEvent) {
-            TemperatueEvent other = (TemperatueEvent) obj;
+        if (obj instanceof TemperatureEvent) {
+            TemperatureEvent other = (TemperatureEvent) obj;
 
             return other.canEquals(this) && super.equals(other) && temperature == other.temperature;
         } else {
@@ -53,7 +53,7 @@ public class TemperatueEvent extends MonitoringEvent {
 
     @Override
     public boolean canEquals(Object obj){
-        return obj instanceof TemperatueEvent;
+        return obj instanceof TemperatureEvent;
     }
 
     @Override

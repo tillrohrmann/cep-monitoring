@@ -26,11 +26,14 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.IngestionTimeExtractor;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.util.Collector;
 import org.stsffap.cep.monitoring.sources.MonitoringEventSource;
 import org.stsffap.cep.monitoring.events.MonitoringEvent;
-import org.stsffap.cep.monitoring.events.TemperatueEvent;
+import org.stsffap.cep.monitoring.events.TemperatureEvent;
 import org.stsffap.cep.monitoring.events.TemperatureAlert;
 import org.stsffap.cep.monitoring.events.TemperatureWarning;
+
+import java.util.Map;
 
 /**
  * CEP example monitoring program
@@ -76,10 +79,10 @@ public class CEPMonitoring {
         // Warning pattern: Two consecutive temperature events whose temperature is higher than the given threshold
         // appearing within a time interval of 10 seconds
         Pattern<MonitoringEvent, ?> warningPattern = Pattern.<MonitoringEvent>begin("first")
-                .subtype(TemperatueEvent.class)
+                .subtype(TemperatureEvent.class)
                 .where(temperatureEvent -> temperatureEvent.getTemperature() >= TEMPERATURE_THRESHOLD)
                 .next("second")
-                .subtype(TemperatueEvent.class)
+                .subtype(TemperatureEvent.class)
                 .where(temperatueEvent -> temperatueEvent.getTemperature() >= TEMPERATURE_THRESHOLD)
                 .within(Time.seconds(10));
 
@@ -90,9 +93,9 @@ public class CEPMonitoring {
 
         // Generate temperature warnings for each matched warning pattern
         DataStream<TemperatureWarning> warnings = tempPatternStream.select(
-            map -> {
-                TemperatueEvent first = (TemperatueEvent) map.get("first");
-                TemperatueEvent second = (TemperatueEvent) map.get("second");
+            (Map<String, MonitoringEvent> map) -> {
+                TemperatureEvent first = (TemperatureEvent) map.get("first");
+                TemperatureEvent second = (TemperatureEvent) map.get("second");
 
                 return new TemperatureWarning(first.getRackID(), (first.getTemperature() + second.getTemperature()) / 2);
             }
@@ -111,7 +114,7 @@ public class CEPMonitoring {
         // Generate a temperature alert only iff the second temperature warning's average temperature is higher than
         // first warning's temperature
         DataStream<TemperatureAlert> alerts = alertPatternStream.flatSelect(
-            (pattern, out) -> {
+            (Map<String, TemperatureWarning> pattern, Collector<TemperatureAlert> out) -> {
                 TemperatureWarning first = pattern.get("first");
                 TemperatureWarning second = pattern.get("second");
 

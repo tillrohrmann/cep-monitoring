@@ -22,7 +22,7 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
 import org.stsffap.cep.monitoring.events.MonitoringEvent;
 import org.stsffap.cep.monitoring.events.PowerEvent;
-import org.stsffap.cep.monitoring.events.TemperatueEvent;
+import org.stsffap.cep.monitoring.events.TemperatureEvent;
 
 import java.util.Random;
 
@@ -89,7 +89,7 @@ public class MonitoringEventSource extends RichParallelSourceFunction<Monitoring
                 monitoringEvent = new PowerEvent(rackId, power);
             } else {
                 double temperature = random.nextGaussian() * temperatureStd + temperatureMean;
-                monitoringEvent = new TemperatueEvent(rackId, temperature);
+                monitoringEvent = new TemperatureEvent(rackId, temperature);
             }
 
 
