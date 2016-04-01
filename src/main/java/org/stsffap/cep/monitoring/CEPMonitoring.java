@@ -80,10 +80,10 @@ public class CEPMonitoring {
         // appearing within a time interval of 10 seconds
         Pattern<MonitoringEvent, ?> warningPattern = Pattern.<MonitoringEvent>begin("first")
                 .subtype(TemperatureEvent.class)
-                .where(temperatureEvent -> temperatureEvent.getTemperature() >= TEMPERATURE_THRESHOLD)
+                .where(evt -> evt.getTemperature() >= TEMPERATURE_THRESHOLD)
                 .next("second")
                 .subtype(TemperatureEvent.class)
-                .where(temperatueEvent -> temperatueEvent.getTemperature() >= TEMPERATURE_THRESHOLD)
+                .where(evt -> evt.getTemperature() >= TEMPERATURE_THRESHOLD)
                 .within(Time.seconds(10));
 
         // Create a pattern stream from our warning pattern
@@ -93,9 +93,9 @@ public class CEPMonitoring {
 
         // Generate temperature warnings for each matched warning pattern
         DataStream<TemperatureWarning> warnings = tempPatternStream.select(
-            (Map<String, MonitoringEvent> map) -> {
-                TemperatureEvent first = (TemperatureEvent) map.get("first");
-                TemperatureEvent second = (TemperatureEvent) map.get("second");
+            (Map<String, MonitoringEvent> pattern) -> {
+                TemperatureEvent first = (TemperatureEvent) pattern.get("first");
+                TemperatureEvent second = (TemperatureEvent) pattern.get("second");
 
                 return new TemperatureWarning(first.getRackID(), (first.getTemperature() + second.getTemperature()) / 2);
             }
