@@ -21,6 +21,7 @@ package org.stsffap.cep.monitoring;
 import org.apache.flink.cep.CEP;
 import org.apache.flink.cep.PatternStream;
 import org.apache.flink.cep.pattern.Pattern;
+import org.apache.flink.cep.pattern.conditions.IterativeCondition;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -33,6 +34,7 @@ import org.stsffap.cep.monitoring.events.TemperatureEvent;
 import org.stsffap.cep.monitoring.events.TemperatureAlert;
 import org.stsffap.cep.monitoring.events.TemperatureWarning;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -80,10 +82,24 @@ public class CEPMonitoring {
         // appearing within a time interval of 10 seconds
         Pattern<MonitoringEvent, ?> warningPattern = Pattern.<MonitoringEvent>begin("first")
                 .subtype(TemperatureEvent.class)
-                .where(evt -> evt.getTemperature() >= TEMPERATURE_THRESHOLD)
+                .where(new IterativeCondition<TemperatureEvent>() {
+                    private static final long serialVersionUID = -6301755149429716724L;
+
+                    @Override
+                    public boolean filter(TemperatureEvent value, Context<TemperatureEvent> ctx) throws Exception {
+                         return value.getTemperature() >= TEMPERATURE_THRESHOLD;
+                    }
+                })
                 .next("second")
                 .subtype(TemperatureEvent.class)
-                .where(evt -> evt.getTemperature() >= TEMPERATURE_THRESHOLD)
+                .where(new IterativeCondition<TemperatureEvent>() {
+                    private static final long serialVersionUID = 2392863109523984059L;
+
+                    @Override
+                    public boolean filter(TemperatureEvent value, Context<TemperatureEvent> ctx) throws Exception {
+                        return value.getTemperature() >= TEMPERATURE_THRESHOLD;
+                    }
+                })
                 .within(Time.seconds(10));
 
         // Create a pattern stream from our warning pattern
@@ -93,9 +109,9 @@ public class CEPMonitoring {
 
         // Generate temperature warnings for each matched warning pattern
         DataStream<TemperatureWarning> warnings = tempPatternStream.select(
-            (Map<String, MonitoringEvent> pattern) -> {
-                TemperatureEvent first = (TemperatureEvent) pattern.get("first");
-                TemperatureEvent second = (TemperatureEvent) pattern.get("second");
+            (Map<String, List<MonitoringEvent>> pattern) -> {
+                TemperatureEvent first = (TemperatureEvent) pattern.get("first").get(0);
+                TemperatureEvent second = (TemperatureEvent) pattern.get("second").get(0);
 
                 return new TemperatureWarning(first.getRackID(), (first.getTemperature() + second.getTemperature()) / 2);
             }
@@ -114,9 +130,9 @@ public class CEPMonitoring {
         // Generate a temperature alert only iff the second temperature warning's average temperature is higher than
         // first warning's temperature
         DataStream<TemperatureAlert> alerts = alertPatternStream.flatSelect(
-            (Map<String, TemperatureWarning> pattern, Collector<TemperatureAlert> out) -> {
-                TemperatureWarning first = pattern.get("first");
-                TemperatureWarning second = pattern.get("second");
+            (Map<String, List<TemperatureWarning>> pattern, Collector<TemperatureAlert> out) -> {
+                TemperatureWarning first = pattern.get("first").get(0);
+                TemperatureWarning second = pattern.get("second").get(0);
 
                 if (first.getAverageTemperature() < second.getAverageTemperature()) {
                     out.collect(new TemperatureAlert(first.getRackID()));
