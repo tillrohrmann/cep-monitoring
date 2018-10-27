@@ -18,7 +18,9 @@
 
 package org.stsffap.cep.monitoring;
 
+import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.cep.CEP;
+import org.apache.flink.cep.PatternFlatSelectFunction;
 import org.apache.flink.cep.PatternStream;
 import org.apache.flink.cep.pattern.Pattern;
 import org.apache.flink.cep.pattern.conditions.IterativeCondition;
@@ -127,7 +129,7 @@ public class CEPMonitoring {
                 warnings.keyBy("rackID"),
                 alertPattern);
 
-        // Generate a temperature alert only iff the second temperature warning's average temperature is higher than
+        // Generate a temperature alert only if the second temperature warning's average temperature is higher than
         // first warning's temperature
         DataStream<TemperatureAlert> alerts = alertPatternStream.flatSelect(
             (Map<String, List<TemperatureWarning>> pattern, Collector<TemperatureAlert> out) -> {
@@ -137,7 +139,8 @@ public class CEPMonitoring {
                 if (first.getAverageTemperature() < second.getAverageTemperature()) {
                     out.collect(new TemperatureAlert(first.getRackID()));
                 }
-            });
+            },
+            TypeInformation.of(TemperatureAlert.class));
 
         // Print the warning and alert events to stdout
         warnings.print();

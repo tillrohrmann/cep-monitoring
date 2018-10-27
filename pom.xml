@@ -30,7 +30,7 @@ under the License.
 	<packaging>jar</packaging>
 
 	<properties>
-		<flink.version>1.4.1</flink.version>
+		<flink.version>1.6.1</flink.version>
 	</properties>
 
 	<dependencies>

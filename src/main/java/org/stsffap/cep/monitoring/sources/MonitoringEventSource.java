@@ -25,6 +25,7 @@ import org.stsffap.cep.monitoring.events.PowerEvent;
 import org.stsffap.cep.monitoring.events.TemperatureEvent;
 
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class MonitoringEventSource extends RichParallelSourceFunction<MonitoringEvent> {
 
@@ -43,8 +44,6 @@ public class MonitoringEventSource extends RichParallelSourceFunction<Monitoring
     private final double temperatureStd;
 
     private final double temperatureMean;
-
-    private Random random;
 
     private int shard;
 
@@ -74,26 +73,28 @@ public class MonitoringEventSource extends RichParallelSourceFunction<Monitoring
 
         offset = (int)((double)maxRackId / numberTasks * index);
         shard = (int)((double)maxRackId / numberTasks * (index + 1)) - offset;
-
-        random = new Random();
     }
 
     public void run(SourceContext<MonitoringEvent> sourceContext) throws Exception {
         while (running) {
             MonitoringEvent monitoringEvent;
 
-            int rackId = random.nextInt(shard) + offset;
+            final ThreadLocalRandom random = ThreadLocalRandom.current();
 
-            if (random.nextDouble() >= temperatureRatio) {
-                double power = random.nextGaussian() * powerStd + powerMean;
-                monitoringEvent = new PowerEvent(rackId, power);
-            } else {
-                double temperature = random.nextGaussian() * temperatureStd + temperatureMean;
-                monitoringEvent = new TemperatureEvent(rackId, temperature);
+            if (shard > 0) {
+                int rackId = random.nextInt(shard) + offset;
+
+                if (random.nextDouble() >= temperatureRatio) {
+                    double power = random.nextGaussian() * powerStd + powerMean;
+                    monitoringEvent = new PowerEvent(rackId, power);
+                } else {
+                    double temperature = random.nextGaussian() * temperatureStd + temperatureMean;
+                    monitoringEvent = new TemperatureEvent(rackId, temperature);
+                }
+
+
+                sourceContext.collect(monitoringEvent);
             }
-
-
-            sourceContext.collect(monitoringEvent);
 
             Thread.sleep(pause);
         }
