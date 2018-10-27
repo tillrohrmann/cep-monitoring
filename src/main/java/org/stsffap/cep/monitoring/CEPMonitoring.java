@@ -19,6 +19,7 @@
 package org.stsffap.cep.monitoring;
 
 import org.apache.flink.cep.CEP;
+import org.apache.flink.cep.PatternFlatSelectFunction;
 import org.apache.flink.cep.PatternStream;
 import org.apache.flink.cep.pattern.Pattern;
 import org.apache.flink.cep.pattern.conditions.IterativeCondition;
@@ -127,17 +128,33 @@ public class CEPMonitoring {
                 warnings.keyBy("rackID"),
                 alertPattern);
 
-        // Generate a temperature alert only iff the second temperature warning's average temperature is higher than
+        // Generate a temperature alert only if the second temperature warning's average temperature is higher than
         // first warning's temperature
         DataStream<TemperatureAlert> alerts = alertPatternStream.flatSelect(
-            (Map<String, List<TemperatureWarning>> pattern, Collector<TemperatureAlert> out) -> {
-                TemperatureWarning first = pattern.get("first").get(0);
-                TemperatureWarning second = pattern.get("second").get(0);
 
-                if (first.getAverageTemperature() < second.getAverageTemperature()) {
-                    out.collect(new TemperatureAlert(first.getRackID()));
+                new PatternFlatSelectFunction<TemperatureWarning, TemperatureAlert>() {
+                    @Override
+                    public void flatSelect(Map<String, List<TemperatureWarning>> pattern, Collector<TemperatureAlert> out) throws Exception {
+                        TemperatureWarning first = pattern.get("first").get(0);
+                        TemperatureWarning second = pattern.get("second").get(0);
+
+                        if (first.getAverageTemperature() < second.getAverageTemperature()) {
+                            out.collect(new TemperatureAlert(first.getRackID()));
+                        }
+                    }
                 }
-            });
+
+
+
+//            (Map<String, List<TemperatureWarning>> pattern, Collector<TemperatureAlert> out) -> {
+//                TemperatureWarning first = pattern.get("first").get(0);
+//                TemperatureWarning second = pattern.get("second").get(0);
+//
+//                if (first.getAverageTemperature() < second.getAverageTemperature()) {
+//                    out.collect(new TemperatureAlert(first.getRackID()));
+//                }
+//            }
+            );
 
         // Print the warning and alert events to stdout
         warnings.print();
