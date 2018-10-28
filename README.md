@@ -5,6 +5,3 @@ The Flink program monitors an incoming stream of monitor events from a data cent
 The input stream contains events about the temperature and power consumption of the individual racks.
 Whenever two temperature events occur within a given interval which exceed a certain threshold temperature, a warning will be raised.
 If the system should detect two temperature warnings for the same rack and with increasing temperatures, the system will generate an alert for this rack.
-
-*Note:* This program contains Java 8 lambdas.
- In order to run it directly from within IntelliJ you first have to build the project on the command line using Maven `mvn clean package`.
